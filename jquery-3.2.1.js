@@ -140,6 +140,11 @@ jQuery.fn = jQuery.prototype = {
 
 	// Take an array of elements and push it onto the stack
 	// (returning the new matched element set)
+	//
+	//
+	// 大多Jquery方法使用了这个函数，目前不清楚是什么原因，留着往下看
+	// 后面看到发现 end方法，发现类似于入栈出栈，获取上一级的dom元素。
+	//
 	pushStack: function( elems ) {
 
 		// Build a new jQuery matched element set
