@@ -534,6 +534,9 @@ jQuery.extend( {
 
 	// Bind a function to a context, optionally partially applying any
 	// arguments.
+	// 
+	// 如果 context 为string，则是将fn作为上下文传入到fn[context]中
+	// 如果 context 不为string，则fn.apply(context, arguments)
 	proxy: function( fn, context ) {
 		var tmp, args, proxy;
 
@@ -556,6 +559,8 @@ jQuery.extend( {
 		};
 
 		// Set the guid of unique handler to the same of original handler, so it can be removed
+		// 
+		// 不知道有啥用，看注释说能删除 - -#
 		proxy.guid = fn.guid = fn.guid || jQuery.guid++;
 
 		return proxy;
@@ -568,6 +573,9 @@ jQuery.extend( {
 	support: support
 } );
 
+// 
+// es6语法，
+// 		- $.fn中定义了 array形式的迭代方法
 if ( typeof Symbol === "function" ) {
 	jQuery.fn[ Symbol.iterator ] = arr[ Symbol.iterator ];
 }
@@ -578,6 +586,7 @@ function( i, name ) {
 	class2type[ "[object " + name + "]" ] = name.toLowerCase();
 } );
 
+// 排除了window对象
 function isArrayLike( obj ) {
 
 	// Support: real iOS 8.2 only (not reproducible in simulator)
@@ -587,6 +596,7 @@ function isArrayLike( obj ) {
 	var length = !!obj && "length" in obj && obj.length,
 		type = jQuery.type( obj );
 
+	// window 对象也有 length
 	if ( type === "function" || jQuery.isWindow( obj ) ) {
 		return false;
 	}
@@ -594,6 +604,12 @@ function isArrayLike( obj ) {
 	return type === "array" || length === 0 ||
 		typeof length === "number" && length > 0 && ( length - 1 ) in obj;
 }
+
+// javascript css 选择器引擎
+// 
+// 代码过长-。- 先看逻辑
+// Sizzle 大多情况使用由右向左查询
+// 
 var Sizzle =
 /*!
  * Sizzle CSS Selector Engine v2.3.3
@@ -669,6 +685,10 @@ var i,
 	// Regular expressions
 
 	// http://www.w3.org/TR/css3-selectors/#whitespace
+	// \x20		空格
+	// \t 		tab
+	// /r 		回车键
+	// /n 		换行
 	whitespace = "[\\x20\\t\\r\\n\\f]",
 
 	// http://www.w3.org/TR/CSS21/syndata.html#value-def-identifier
