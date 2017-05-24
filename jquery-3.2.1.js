@@ -197,6 +197,14 @@ jQuery.fn = jQuery.prototype = {
 	splice: arr.splice
 };
 
+/**
+ * 扩展函数
+ * @param {boolean} deep 可选 是否深度扩展
+ * @param {object} 目标扩展对象 *个参数
+ *                        - 1个扩展对象就扩展到 Jquery、Jquery.fn上
+ *                        - 多个对象就扩展到第一个对象上	
+ * @return {object} 被扩展的对象
+ */
 jQuery.extend = jQuery.fn.extend = function() {
 	var options, name, src, copy, copyIsArray, clone,
 		target = arguments[ 0 ] || {},
@@ -240,6 +248,7 @@ jQuery.extend = jQuery.fn.extend = function() {
 				}
 
 				// Recurse if we're merging plain objects or arrays
+				// 如果是object or array 递归分解成除object外的基本类型
 				if ( deep && copy && ( jQuery.isPlainObject( copy ) ||
 					( copyIsArray = Array.isArray( copy ) ) ) ) {
 
@@ -285,9 +294,11 @@ jQuery.extend( {
 	},
 
 	isWindow: function( obj ) {
+		// window 对象中的window属性引用自身
 		return obj != null && obj === obj.window;
 	},
 
+	// obj是否为数字值
 	isNumeric: function( obj ) {
 
 		// As of jQuery 3.0, isNumeric is limited to
@@ -299,9 +310,15 @@ jQuery.extend( {
 			// parseFloat NaNs numeric-cast false positives ("")
 			// ...but misinterprets leading-number strings, particularly hex literals ("0x...")
 			// subtraction forces infinities to NaN
+			// 
+			// parseFloat 参数中第一个为数字则不会返回NaN
+			// 利用 obj - parseFloat(obj) 能够避免不返回NaN的情况
 			!isNaN( obj - parseFloat( obj ) );
 	},
 
+	// 检测是否为纯粹的对象
+	// 		- obj 为其他构造函数对象 new产生且prototype不为object的情况 返回false
+	// 		# 具体作用未知
 	isPlainObject: function( obj ) {
 		var proto, Ctor;
 
@@ -314,6 +331,7 @@ jQuery.extend( {
 		proto = getProto( obj );
 
 		// Objects with no prototype (e.g., `Object.create( null )`) are plain
+		// obj 由 {} 或 Object.create({} | null) 创建的情况，prototype为 undefined
 		if ( !proto ) {
 			return true;
 		}
@@ -336,17 +354,23 @@ jQuery.extend( {
 	},
 
 	type: function( obj ) {
+		// 过滤undefined|null
 		if ( obj == null ) {
 			return obj + "";
 		}
 
 		// Support: Android <=2.3 only (functionish RegExp)
+		// ---------
+		// 疑惑：在obj为function类型时会返回function 目前逻辑下去应该不为function 
+		// 往下看
+		// ---------
 		return typeof obj === "object" || typeof obj === "function" ?
 			class2type[ toString.call( obj ) ] || "object" :
 			typeof obj;
 	},
 
 	// Evaluates a script in a global context
+	// 全局执行一次脚本，调用后删除
 	globalEval: function( code ) {
 		DOMEval( code );
 	},
@@ -354,10 +378,23 @@ jQuery.extend( {
 	// Convert dashed to camelCase; used by the css and data modules
 	// Support: IE <=9 - 11, Edge 12 - 13
 	// Microsoft forgot to hump their vendor prefix (#9572)
+	// 
+	// 将background-image转为驼峰表示 backgroundImage
+	// 
+	// 		replace 拓展
+	// 			-	str.replace(regexp|substr, newSubStr|function[, Non-standard flags]);
+	// 			-	其中回调 function 参数
+	// 				· match	匹配的子串。（对应于上述的$&。）
+	// 				· p1,p2, ...	
+	// 				· 假如replace()方法的第一个参数是一个RegExp 对象，则代表第n个括号匹配的字符串。（对应于上述的$1，$2等。）
+	// 				· offset	
+	// 				· 匹配到的子字符串在原字符串中的偏移量。（比如，如果原字符串是“abcd”，匹配到的子字符串时“bc”，那么这个参数将是1）
+	// 				· string	被匹配的原字符串。
 	camelCase: function( string ) {
 		return string.replace( rmsPrefix, "ms-" ).replace( rdashAlpha, fcamelCase );
 	},
 
+	// return false 终止
 	each: function( obj, callback ) {
 		var length, i = 0;
 
@@ -380,6 +417,10 @@ jQuery.extend( {
 	},
 
 	// Support: Android <=4.0 only
+	// 
+	// 会过滤 \n 
+	// 用到了rtrim 参数
+	// \s\uFEFF\xA0 这三个属于不同编码的空格
 	trim: function( text ) {
 		return text == null ?
 			"" :
@@ -387,6 +428,8 @@ jQuery.extend( {
 	},
 
 	// results is for internal usage only
+	// 
+	// 内部使用
 	makeArray: function( arr, results ) {
 		var ret = results || [];
 
@@ -404,6 +447,8 @@ jQuery.extend( {
 		return ret;
 	},
 
+	// indexOf(elem, i)
+	// 其实 i 是指从第几位开始查询
 	inArray: function( elem, arr, i ) {
 		return arr == null ? -1 : indexOf.call( arr, elem, i );
 	},
@@ -424,6 +469,13 @@ jQuery.extend( {
 		return first;
 	},
 
+	/**
+	 * 返回不合callback要求的数组
+	 * @param  {array}   elems    筛选数组
+	 * @param  {function} callback 筛选方法
+	 * @param  {Boolean}   invert   倒置 可选，[有则是返回!invert|无返回true]的数据
+	 * @return {array}            
+	 */
 	grep: function( elems, callback, invert ) {
 		var callbackInverse,
 			matches = [],
@@ -444,6 +496,8 @@ jQuery.extend( {
 	},
 
 	// arg is for internal usage only
+	// 
+	// 和 Array.prototype.map 一样
 	map: function( elems, callback, arg ) {
 		var length, value,
 			i = 0,
